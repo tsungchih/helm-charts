@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: default
+  name: {{ include "debezium-kafka-connect.fullname" . }}-config
+  labels:
+    {{- include "debezium-kafka-connect.labels" . | nindent 4 }}
+data:
+  GROUP_ID: "1"
+  BOOTSTRAP_SERVERS: "192.168.68.113:9092"
+  CONFIG_STORAGE_TOPIC: "connect-configs"
+  OFFSET_STORAGE_TOPIC: "connect-offsets"
+  STATUS_STORAGE_TOPIC: "connect-status"
+  ADVERTISED_HOST_NAME: ""
+  KEY_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
+  VALUE_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
+  INTERNAL_KEY_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
+  INTERNAL_VALUE_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
+  OFFSET_FLUSH_INTERVAL_MS: "60000"
+  OFFSET_FLUSH_TIMEOUT_MS: "5000"
+  SHUTDOWN_TIMEOUT: "1000"
+  HEAP_OPTS: "-Xmx1G -Xms1G"
+  LOG_LEVEL: "INFO"
