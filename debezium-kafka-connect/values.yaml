@@ -13,6 +13,15 @@ imagePullSecrets: []
 nameOverride: "kafka-connect"
 fullnameOverride: ""
 
+service:
+  type: ClusterIP
+  restService:
+    name: rest-api
+    port: 8083
+  jmxService:
+    name: jmx-port
+    port: 5555
+
 serviceAccount:
   # Specifies whether a service account should be created
   create: true
@@ -32,10 +41,6 @@ securityContext: {}
   # readOnlyRootFilesystem: true
   # runAsNonRoot: true
   # runAsUser: 1000
-
-service:
-  type: ClusterIP
-  port: 80
 
 ingress:
   enabled: false
@@ -64,10 +69,10 @@ probeInfo:
 resources:
   limits:
     cpu: 1000m
-    memory: 1088Mi
+    memory: 1280Mi
   requests:
     cpu: 250m
-    memory: 1280Mi
+    memory: 1088Mi
 
 nodeSelector: {}
 
@@ -75,80 +80,10 @@ tolerations: []
 
 affinity: {}
 
-
-
-
-
-
-
-
-
-
-# Default values for cp-kafka-connect.
-# This is a YAML-formatted file.
-# Declare variables to be passed into your templates.
-
-replicaCount: 1
-
-## Image Info
-## ref: https://hub.docker.com/r/confluentinc/cp-kafka/
-image: confluentinc/cp-kafka-connect
-imageTag: 5.4.0
-
-## Specify a imagePullPolicy
-## ref: http://kubernetes.io/docs/user-guide/images/#pre-pulling-images
-imagePullPolicy: IfNotPresent
-
-## Specify an array of imagePullSecrets.
-## Secrets must be manually created in the namespace.
-## ref: https://kubernetes.io/docs/concepts/containers/images/#specifying-imagepullsecrets-on-a-pod
-imagePullSecrets:
-
-servicePort: 8083
-
-## Kafka Connect properties
-## ref: https://docs.confluent.io/current/connect/userguide.html#configuring-workers
-configurationOverrides:
-  "plugin.path": "/usr/share/java,/usr/share/confluent-hub-components"
-  "key.converter": "io.confluent.connect.avro.AvroConverter"
-  "value.converter": "io.confluent.connect.avro.AvroConverter"
-  "key.converter.schemas.enable": "false"
-  "value.converter.schemas.enable": "false"
-  "internal.key.converter": "org.apache.kafka.connect.json.JsonConverter"
-  "internal.value.converter": "org.apache.kafka.connect.json.JsonConverter"
-  "config.storage.replication.factor": "3"
-  "offset.storage.replication.factor": "3"
-  "status.storage.replication.factor": "3"
-
-## Kafka Connect JVM Heap Option
-heapOptions: "-Xms512M -Xmx512M"
-
-## Additional env variables
-customEnv: {}
-
-resources: {}
-  # We usually recommend not to specify default resources and to leave this as a conscious
-  # choice for the user. This also increases chances charts run on environments with little
-  # resources, such as Minikube. If you do want to specify resources, uncomment the following
-  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-  # limits:
-  #  cpu: 100m
-  #  memory: 128Mi
-  # requests:
-  #  cpu: 100m
-  #  memory: 128Mi
-
-## Custom pod annotations
-podAnnotations: {}
-
-## Node labels for pod assignment
-## Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
-nodeSelector: {}
-
-## Taints to tolerate on node assignment:
-## Ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
-tolerations: {}
-
+kafka:
+  brokers: 192.168.68.108:9092
+  heapOpts: "-Xmx1G -Xms1G"
+  logLevel: "INFO"
 ## Monitoring
 ## Kafka Connect JMX Settings
 ## ref: https://kafka.apache.org/documentation/#connect_monitoring
@@ -170,13 +105,3 @@ prometheus:
     ## Resources configuration for the JMX exporter container.
     ## See the `resources` documentation above for details.
     resources: {}
-
-## You can list load balanced service endpoint, or list of all brokers (which is hard in K8s).  e.g.:
-## bootstrapServers: "PLAINTEXT://dozing-prawn-kafka-headless:9092"
-kafka:
-  bootstrapServers: ""
-
-## If the Kafka Chart is disabled a URL and port are required to connect
-## e.g. gnoble-panther-cp-schema-registry:8081
-cp-schema-registry:
-  url: ""

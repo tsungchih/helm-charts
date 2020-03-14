@@ -42,10 +42,15 @@ spec:
             - name: rest-port
               containerPort: 8083
               protocol: TCP
+            - name: jmx-port
+              containerPort: 5555
+              protocol: TCP
+          {{- with .Values.probeInfo }}
           livenessProbe:
-            {{- toYaml .Values.probeInfo | nindent 12 }}
+            {{- toYaml . | nindent 12 }}
           readinessProbe:
-            {{- toYaml .Values.probeInfo | nindent 12 }}
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- if .Values.nodeSelector }}
