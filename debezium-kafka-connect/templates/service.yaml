@@ -5,11 +5,15 @@ metadata:
   labels:
     {{- include "debezium-kafka-connect.labels" . | nindent 4 }}
 spec:
-  type: {{ .Values.service.type }}
+  {{- with .Values.service }}
+  type: {{ .type }}
   ports:
-    - port: {{ .Values.service.port }}
-      targetPort: http
+    - port: {{ .restService.port }}
       protocol: TCP
-      name: http
+      name: {{ .restService.name | quote }}
+    - port: {{ .jmxService.port }}
+      protocol: TCP
+      name: {{ .jmxService.name | quote }}
+  {{- end }}
   selector:
     {{- include "debezium-kafka-connect.selectorLabels" . | nindent 4 }}

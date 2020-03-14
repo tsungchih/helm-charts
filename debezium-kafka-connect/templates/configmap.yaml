@@ -6,8 +6,10 @@ metadata:
   labels:
     {{- include "debezium-kafka-connect.labels" . | nindent 4 }}
 data:
+  JMXPORT: {{ .Values.jmx.port | quote }}
+  {{- with .Values.kafka }}
   GROUP_ID: "1"
-  BOOTSTRAP_SERVERS: "192.168.68.113:9092"
+  BOOTSTRAP_SERVERS: {{ .brokers | quote }}
   CONFIG_STORAGE_TOPIC: "connect-configs"
   OFFSET_STORAGE_TOPIC: "connect-offsets"
   STATUS_STORAGE_TOPIC: "connect-status"
@@ -19,5 +21,6 @@ data:
   OFFSET_FLUSH_INTERVAL_MS: "60000"
   OFFSET_FLUSH_TIMEOUT_MS: "5000"
   SHUTDOWN_TIMEOUT: "1000"
-  HEAP_OPTS: "-Xmx1G -Xms1G"
-  LOG_LEVEL: "INFO"
+  HEAP_OPTS: {{ .heapOpts }}
+  LOG_LEVEL: {{ .logLevel }}
+  {{- end }}
