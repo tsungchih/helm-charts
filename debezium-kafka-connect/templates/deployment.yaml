@@ -17,6 +17,13 @@ spec:
     metadata:
       labels:
         {{- include "debezium-kafka-connect.selectorLabels" . | nindent 8 }}
+      {{- if or .Values.podAnnotations .Values.prometheus.jmx.enabled }}
+      annotations:
+      {{- if .Values.prometheus.jmx.enabled }}
+        prometheus.io/scrape: "true"
+        prometheus.io/port: {{ .Values.prometheus.jmx.port | quote }}
+      {{- end }}
+      {{- end }}
     spec:
     {{- if .Values.imagePullSecrets }}
       imagePullSecrets:
@@ -27,7 +34,35 @@ spec:
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
     {{- end }}
+      volumes:
+      {{- if .Values.prometheus.jmx.enabled }}
+      - name: jmx-config
+        configMap:
+          name: {{ template "debezium-kafka-connect.fullname" . }}-jmx-configmap
+      {{- end }}
       containers:
+        {{- if .Values.prometheus.jmx.enabled }}
+        - name: prometheus-jmx-exporter
+          image: "{{ .Values.prometheus.jmx.image }}:{{ .Values.prometheus.jmx.imageTag }}"
+          imagePullPolicy: "{{ .Values.prometheus.jmx.imagePullPolicy }}"
+          command:
+          - java
+          - -XX:+UnlockExperimentalVMOptions
+          - -XX:+UseCGroupMemoryLimitForHeap
+          - -XX:MaxRAMFraction=1
+          - -XshowSettings:vm
+          - -jar
+          - jmx_prometheus_httpserver.jar
+          - {{ .Values.prometheus.jmx.port | quote }}
+          - /etc/jmx-kafka-connect/jmx-kafka-connect-prometheus.yml
+          ports:
+          - containerPort: {{ .Values.prometheus.jmx.port }}
+          resources:
+{{ toYaml .Values.prometheus.jmx.resources | indent 12 }}
+          volumeMounts:
+          - name: jmx-config
+            mountPath: /etc/jmx-kafka-connect
+        {{- end }}
         - name: {{ .Chart.Name }}
         {{- if .Values.securityContext }}
           securityContext:
