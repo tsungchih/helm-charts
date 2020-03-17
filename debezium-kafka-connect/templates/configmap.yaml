@@ -6,7 +6,7 @@ metadata:
   labels:
     {{- include "debezium-kafka-connect.labels" . | nindent 4 }}
 data:
-  JMXPORT: {{ .Values.jmx.port | quote }}
+  JMX_PORT: {{ .Values.jmx.port | quote }}
   {{- with .Values.kafka }}
   GROUP_ID: "1"
   BOOTSTRAP_SERVERS: {{ .brokers | quote }}
