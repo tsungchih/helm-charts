@@ -1,0 +1,88 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "innotech-frontend.fullname" . }}-{{ .Chart.AppVersion }}
+  labels:
+{{ include "innotech-frontend.labels" . | indent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name | quote }}
+      version: {{ .Values.image.tag | quote }}
+      vendorid: {{ .Values.vendorId | quote }}
+      platformid: {{ .Values.platformId | quote }}
+      app.kubernetes.io/name: {{ include "innotech-frontend.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name | quote }}
+        version: {{ .Values.image.tag | quote }}
+        venderid: {{ .Values.vendorId | quote }}
+        platformid: {{ .Values.platformId | quote }}
+        app.kubernetes.io/name: {{ include "innotech-frontend.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      hostname: {{ include "innotech-frontend.fullname" . }}-{{ .Chart.AppVersion }}
+      containers:
+      - name: {{ include "innotech-frontend.fullname" . }}-{{ .Chart.AppVersion }}
+        image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+        imagePullPolicy: {{ .Values.image.pullPolicy | quote }}
+        env:
+        - name: FOR_GODS_SAKE_PLEASE_REDEPLOY
+          value: 'THIS_STRING_IS_REPLACED_DURING_BUILD'
+        # command: ["/bin/sh"]
+        # args: ["-c", "cp /tmp/env/env-config.js /usr/share/nginx/html/ ; cp /tmp/config/nginx.conf /etc/nginx/ ; tail -f /var/log/nginx/*"]
+        ports:
+        - containerPort: {{ .Values.service.port }}
+          protocol: TCP
+        resources:
+          requests:
+            cpu: 100m
+            memory: 512Mi
+        #   limits:
+        #     cpu: 2000m
+        #     memory: 2048Mi
+        livenessProbe:
+          tcpSocket:
+            port: {{ .Values.service.port }}
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 1
+          successThreshold: 1
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /
+            port: {{ .Values.service.port }}
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 1
+          successThreshold: 1
+          failureThreshold: 3
+        volumeMounts:
+        - name: nginx-config
+          mountPath: /etc/nginx/nginx.conf
+          subPath: nginx.conf
+        - name: nginx-env
+          mountPath: /usr/share/nginx/html/env-config.js
+          subPath: env-config.js
+      volumes:
+      - name: nginx-config
+        configMap:
+          name: {{ include "innotech-frontend.fullname" . }}-config
+          items:
+            - key: nginx.conf
+              path: nginx.conf
+      - name: nginx-env
+        configMap:
+          name: {{ include "innotech-frontend.fullname" . }}-env
+          items:
+            - key: env-config.js
+              path: env-config.js
+      restartPolicy: Always
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
