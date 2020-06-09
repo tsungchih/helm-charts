@@ -1,0 +1,14 @@
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ include "innotech-frontend.fullname" . }}
+  labels:
+{{ include "innotech-frontend.labels" . | indent 4 }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ include "innotech-frontend.fullname" . }}-{{ .Chart.AppVersion }}
+  minReplicas: {{ .Values.autoScaler.minReplicaCount }}
+  maxReplicas: {{ .Values.autoScaler.maxReplicaCount }}
+  targetCPUUtilizationPercentage: {{ .Values.autoScaler.targetCPUUtilization }}

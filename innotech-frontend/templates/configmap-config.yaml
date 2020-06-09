@@ -1,0 +1,48 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: {{ include "innotech-frontend.fullname" .}}-config
+  labels:
+    addonmanager.kubernetes.io/mode: Reconcile
+{{ include "innotech-frontend.labels" . | indent 4 }}
+data:
+  nginx.conf: |
+    user  nginx;
+    worker_processes  auto;
+    error_log  /var/log/nginx/error.log warn;
+    pid        /var/run/nginx.pid;
+    events {
+      multi_accept on;
+      worker_connections  32768;
+    }
+    http {
+      include       /etc/nginx/mime.types;
+      default_type  application/octet-stream;
+      log_format 	main	'$remote_addr - $remote_user [$time_local] "$request" '
+                        '$status $body_bytes_sent "$http_referer" '
+                        '"$http_user_agent" "$http_x_forwarded_for" $server_addr $request_time';
+      access_log  /var/log/nginx/access.log  main;
+      sendfile        on;
+      #tcp_nopush     on;
+      keepalive_timeout  65;
+      gzip  on;
+      gzip_comp_level	1;
+      gzip_min_length	10240;
+      gzip_buffers		4	8k;
+      gzip_types			text/plain text/css text/xml application/xml application/javascript application/java-archive application/json;
+      gzip_vary			  on;
+      gzip_disable		"MSIE [1-6]\.";
+      server {
+        listen       80;
+        server_name  localhost;
+        location / {
+            root   /usr/share/nginx/html;
+            index  index.html index.htm;
+            try_files $uri /index.html;
+        }
+        error_page   500 502 503 504  /50x.html;
+        location = /50x.html {
+            root   /usr/share/nginx/html;
+        }
+      }
+    }
