@@ -61,3 +61,10 @@ Create ingress hostname.
 {{- define "innotech-frontend.ingressHost" -}}
 {{- printf "%s-%s-%s.%s" .Values.vendorId .Release.Name .Values.envId .Values.domainName -}}
 {{- end -}}
+
+{{/*
+Create app name.
+*/}}
+{{- define "innotech-frontend.appName" -}}
+{{- printf "%s-frontend" .Release.Name -}}
+{{- end -}}

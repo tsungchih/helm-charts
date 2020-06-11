@@ -1,7 +1,8 @@
 apiVersion: autoscaling/v1
 kind: HorizontalPodAutoscaler
 metadata:
-  name: {{ include "innotech-frontend.fullname" . }}
+  name: {{ include "innotech-frontend.fullname" . | quote }}
+  namespace: {{ .Values.namespace | quote }}
   labels:
 {{ include "innotech-frontend.labels" . | indent 4 }}
 spec:

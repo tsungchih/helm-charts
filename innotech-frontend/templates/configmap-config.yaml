@@ -2,6 +2,7 @@ kind: ConfigMap
 apiVersion: v1
 metadata:
   name: {{ include "innotech-frontend.fullname" .}}-config
+  namespace: {{ .Values.namespace | quote }}
   labels:
     addonmanager.kubernetes.io/mode: Reconcile
 {{ include "innotech-frontend.labels" . | indent 4 }}
