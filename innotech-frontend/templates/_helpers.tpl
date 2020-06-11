@@ -19,7 +19,7 @@ If release name contains chart name it will be used as a full name.
 {{- if contains $name .Release.Name -}}
 {{- .Release.Name | trunc 63 | trimSuffix "-" -}}
 {{- else -}}
-{{- printf "%s-frontend-%s-%s" .Release.Name .Values.vendorId .Values.platformId | trunc 63 | trimSuffix "-" -}}
+{{- printf "%s-frontend-%s-%s" .Release.Name .Values.project.vendorId .Values.project.platformId | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 {{- end -}}
 {{- end -}}
@@ -45,6 +45,16 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end -}}
 
 {{/*
+Project specific labels. 
+*/}}
+{{- define "innotech-frontend.projectLabels" -}}
+app: {{ include "innotech-frontend.appName" . | quote }}
+version: {{ .Values.image.tag | quote }}
+vendorid: {{ .Values.project.vendorId | quote }}
+platformid: {{ .Values.project.platformId | quote }}
+{{- end -}}
+
+{{/*
 Create the name of the service account to use
 */}}
 {{- define "innotech-frontend.serviceAccountName" -}}
@@ -59,7 +69,7 @@ Create the name of the service account to use
 Create ingress hostname.
 */}}
 {{- define "innotech-frontend.ingressHost" -}}
-{{- printf "%s-%s-%s.%s" .Values.vendorId .Release.Name .Values.envId .Values.domainName -}}
+{{- printf "%s-%s-%s.%s" .Values.project.vendorId .Release.Name .Values.project.envId .Values.project.domainName -}}
 {{- end -}}
 
 {{/*

@@ -2,7 +2,7 @@ apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
   name: {{ include "innotech-frontend.fullname" . | quote }}
-  namespace: {{ .Values.namespace | quote }}
+  namespace: {{ .Values.project.namespace | quote }}
   labels:
 {{ include "innotech-frontend.labels" . | indent 4 }}
   annotations:

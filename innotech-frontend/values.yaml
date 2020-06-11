@@ -2,7 +2,6 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-namespace: default
 replicaCount: 1
 
 image:
@@ -73,9 +72,11 @@ tolerations: []
 
 affinity: {}
 
-vendorId: "vd000"
-platformId: "pf000"
-# The envId corresponds to ${REF_NAME}
-envId: "uat"
-domainName: "ceshi22.com"
-publicDomain: "public.example.com"
+project:
+  namespace: default
+  vendorId: "vd000"
+  platformId: "pf000"
+  # The envId corresponds to ${REF_NAME}
+  envId: "stg"
+  domainName: "ceshi22.com"
+  publicDomain: "public.example.com"

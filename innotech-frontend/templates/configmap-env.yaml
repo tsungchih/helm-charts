@@ -2,12 +2,12 @@ kind: ConfigMap
 apiVersion: v1
 metadata:
   name: {{ include "innotech-frontend.fullname" . }}-env
-  namespace: {{ .Values.namespace | quote }}
+  namespace: {{ .Values.project.namespace | quote }}
   labels:
     addonmanager.kubernetes.io/mode: Reconcile
 {{ include "innotech-frontend.labels" . | indent 4 }}
 data:
   env-config.js: |-
     window._env_ = {
-        CONFIG_URL: "https://{{ .Values.publicDomain }}/config/{{ .Values.vendorId }}/web-{{ .Values.namespace }}.json"
+        CONFIG_URL: "https://{{ .Values.project.publicDomain }}/config/{{ .Values.project.vendorId }}/web-{{ .Values.project.namespace }}.json"
     }
