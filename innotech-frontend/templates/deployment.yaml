@@ -2,27 +2,22 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ include "innotech-frontend.fullname" . }}-{{ .Chart.AppVersion }}
+  namespace: {{ .Values.project.namespace | quote }}
   labels:
 {{ include "innotech-frontend.labels" . | indent 4 }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app: {{ .Release.Name | quote }}
-      version: {{ .Values.image.tag | quote }}
-      vendorid: {{ .Values.vendorId | quote }}
-      platformid: {{ .Values.platformId | quote }}
-      app.kubernetes.io/name: {{ include "innotech-frontend.name" . }}
-      app.kubernetes.io/instance: {{ .Release.Name }}
+{{ include "innotech-frontend.projectLabels" . | indent 6 }}
+      app.kubernetes.io/name: {{ include "innotech-frontend.name" . | quote }}
+      app.kubernetes.io/instance: {{ .Release.Name | quote }}
   template:
     metadata:
       labels:
-        app: {{ .Release.Name | quote }}
-        version: {{ .Values.image.tag | quote }}
-        venderid: {{ .Values.vendorId | quote }}
-        platformid: {{ .Values.platformId | quote }}
-        app.kubernetes.io/name: {{ include "innotech-frontend.name" . }}
-        app.kubernetes.io/instance: {{ .Release.Name }}
+{{ include "innotech-frontend.projectLabels" . | indent 8 }}
+        app.kubernetes.io/name: {{ include "innotech-frontend.name" . | quote }}
+        app.kubernetes.io/instance: {{ .Release.Name | quote }}
     spec:
       hostname: {{ include "innotech-frontend.fullname" . }}-{{ .Chart.AppVersion }}
       containers:

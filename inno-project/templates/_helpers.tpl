@@ -2,7 +2,7 @@
 {{/*
 Expand the name of the chart.
 */}}
-{{- define "innotech-frontend.name" -}}
+{{- define "inno-project.name" -}}
 {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
@@ -11,7 +11,7 @@ Create a default fully qualified app name.
 We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
 If release name contains chart name it will be used as a full name.
 */}}
-{{- define "innotech-frontend.fullname" -}}
+{{- define "inno-project.fullname" -}}
 {{- if .Values.fullnameOverride -}}
 {{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" -}}
 {{- else -}}
@@ -19,7 +19,7 @@ If release name contains chart name it will be used as a full name.
 {{- if contains $name .Release.Name -}}
 {{- .Release.Name | trunc 63 | trimSuffix "-" -}}
 {{- else -}}
-{{- printf "%s-frontend-%s-%s" .Release.Name .Values.project.vendorId .Values.project.platformId | trunc 63 | trimSuffix "-" -}}
+{{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 {{- end -}}
 {{- end -}}
@@ -27,16 +27,16 @@ If release name contains chart name it will be used as a full name.
 {{/*
 Create chart name and version as used by the chart label.
 */}}
-{{- define "innotech-frontend.chart" -}}
+{{- define "inno-project.chart" -}}
 {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{/*
 Common labels
 */}}
-{{- define "innotech-frontend.labels" -}}
-app.kubernetes.io/name: {{ include "innotech-frontend.name" . }}
-helm.sh/chart: {{ include "innotech-frontend.chart" . }}
+{{- define "inno-project.labels" -}}
+app.kubernetes.io/name: {{ include "inno-project.name" . }}
+helm.sh/chart: {{ include "inno-project.chart" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
@@ -45,36 +45,12 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end -}}
 
 {{/*
-Project specific labels. 
-*/}}
-{{- define "innotech-frontend.projectLabels" -}}
-app: {{ include "innotech-frontend.appName" . | quote }}
-version: {{ .Values.image.tag | quote }}
-vendorid: {{ .Values.project.vendorId | quote }}
-platformid: {{ .Values.project.platformId | quote }}
-{{- end -}}
-
-{{/*
 Create the name of the service account to use
 */}}
-{{- define "innotech-frontend.serviceAccountName" -}}
+{{- define "inno-project.serviceAccountName" -}}
 {{- if .Values.serviceAccount.create -}}
-    {{ default (include "innotech-frontend.fullname" .) .Values.serviceAccount.name }}
+    {{ default (include "inno-project.fullname" .) .Values.serviceAccount.name }}
 {{- else -}}
     {{ default "default" .Values.serviceAccount.name }}
 {{- end -}}
-{{- end -}}
-
-{{/*
-Create ingress hostname.
-*/}}
-{{- define "innotech-frontend.ingressHost" -}}
-{{- printf "%s-%s-%s.%s" .Values.project.vendorId .Release.Name .Values.project.envId .Values.project.domainName -}}
-{{- end -}}
-
-{{/*
-Create app name.
-*/}}
-{{- define "innotech-frontend.appName" -}}
-{{- printf "%s-frontend" .Release.Name -}}
 {{- end -}}

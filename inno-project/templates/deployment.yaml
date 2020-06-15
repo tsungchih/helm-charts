@@ -1,26 +1,26 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "innotech-frontend.fullname" . }}
+  name: {{ include "inno-project.fullname" . }}
   labels:
-{{ include "innotech-frontend.labels" . | indent 4 }}
+{{ include "inno-project.labels" . | indent 4 }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app.kubernetes.io/name: {{ include "innotech-frontend.name" . }}
+      app.kubernetes.io/name: {{ include "inno-project.name" . }}
       app.kubernetes.io/instance: {{ .Release.Name }}
   template:
     metadata:
       labels:
-        app.kubernetes.io/name: {{ include "innotech-frontend.name" . }}
+        app.kubernetes.io/name: {{ include "inno-project.name" . }}
         app.kubernetes.io/instance: {{ .Release.Name }}
     spec:
     {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
     {{- end }}
-      serviceAccountName: {{ template "innotech-frontend.serviceAccountName" . }}
+      serviceAccountName: {{ template "inno-project.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:

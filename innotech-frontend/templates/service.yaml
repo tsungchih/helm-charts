@@ -1,7 +1,8 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "innotech-frontend.fullname" . }}
+  name: {{ include "innotech-frontend.fullname" . | quote }}
+  namespace: {{ .Values.project.namespace | quote }}
   labels:
 {{ include "innotech-frontend.labels" . | indent 4 }}
 spec:
@@ -10,9 +11,8 @@ spec:
     protocol: TCP
     port: {{ .Values.service.port }}
     targetPort: {{ .Values.service.port }}
-    # nodePort: CONTAINER_PORT
   selector:
-    app: {{ .Release.Name | quote }}
+    app: {{ include "innotech-frontend.appName" . | quote }}
     version: {{ .Values.image.tag | quote }}
-    venderid: {{ .Values.vendorId | quote }}
-    platformid: {{ .Values.platformId | quote }}
+    venderid: {{ .Values.project.vendorId | quote }}
+    platformid: {{ .Values.project.platformId | quote }}
