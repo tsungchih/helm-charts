@@ -82,10 +82,10 @@ providers:
 # After the volume has been mounted, add the configs into traefik by using the `additionalArguments` list below, eg:
 # additionalArguments:
 # - "--providers.file.filename=/config/dynamic.toml"
-volumes: []
-# - name: public-cert
-#   mountPath: "/certs"
-#   type: secret
+volumes:
+  - name: google-cloud-platform
+    mountPath: "/gcp-creds"
+    type: secret
 # - name: configs
 #   mountPath: "/config"
 #   type: configMap
@@ -142,12 +142,20 @@ globalArguments:
 # All available options available on https://docs.traefik.io/reference/static-configuration/cli/
 ## Use curly braces to pass values: `helm install --set="additionalArguments={--providers.kubernetesingress.ingressclass=traefik-internal,--log.level=DEBUG}"`
 additionalArguments:
-  - --api=true
+  - "--api=true"
+  - "--certificatesresolvers.letsencrypt.acme.email=gcpadmin@innotech.me"
+  - "--certificatesresolvers.letsencrypt.acme.storage=/data/acme.json"
+  - "--certificatesresolvers.letsencrypt.acme.caserver=https://acme-v02.api.letsencrypt.org/directory"
+  - "--certificatesResolvers.letsencrypt.acme.dnschallenge=true"
+  - "--certificatesResolvers.letsencrypt.acme.dnschallenge.provider=gcloud"
+  - "--api.insecure=true"
 #  - "--providers.kubernetesingress.ingressclass=traefik-internal"
 #  - "--log.level=DEBUG"
 
 # Environment variables to be passed to Traefik's binary
-env: []
+env:
+  - name: GOOGLE_APPLICATION_CREDENTIALS
+    value: "/gcp-creds/bigdata-dev-traefik.json"
 # - name: SOME_VAR
 #   value: some-var-value
 # - name: SOME_VAR_FROM_CONFIG_MAP
@@ -260,7 +268,7 @@ autoscaling:
 # - "--certificatesresolvers.le.acme.storage=/data/acme.json"
 # It will persist TLS certificates.
 persistence:
-  enabled: false
+  enabled: true
 #  existingClaim: ""
   accessMode: ReadWriteOnce
   size: 128Mi
