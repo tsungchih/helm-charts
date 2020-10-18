@@ -46,7 +46,7 @@ spec:
   entryPoints:
     - web
   routes:
-  - match: Host(`whoami.bigdata-dev.tk`) && PathPrefix(`/notls`)
+  - match: Host(`whoami.bigdata-dev.inno`) && PathPrefix(`/notls`)
     kind: Rule
     services:
     - name: whoami
