@@ -1,0 +1,20 @@
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: grafana-ingressroute
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/name: grafana
+    app.kubernetes.io/version: 7.2.1
+    app.kubernetes.io/component: webapp
+spec:
+  entryPoints:
+    - web
+  routes:
+  - match: Host(`grafana.bigdata-dev.ml`)
+    kind: Rule
+    services:
+    - name: grafana
+      port: 80
+---

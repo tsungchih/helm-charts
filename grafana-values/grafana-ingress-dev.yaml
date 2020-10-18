@@ -1,0 +1,16 @@
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: grafana-server
+  namespace: monitoring
+spec:
+  rules:
+  - host: grafana.bigdata-dev.inno
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: grafana
+          servicePort: 80
+---
