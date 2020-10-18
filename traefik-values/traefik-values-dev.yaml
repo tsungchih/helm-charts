@@ -303,7 +303,13 @@ resources: {}
   # limits:
   #   cpu: "300m"
   #   memory: "150Mi"
-affinity: {}
+affinity:
+  nodeAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: cloud.google.com/gke-preemptible
+          operator: DoesNotExist
 # # This example pod anti-affinity forces the scheduler to put traefik pods
 # # on nodes where no other traefik pods are scheduled.
 # # It should be used when hostNetwork: true to prevent port conflicts
