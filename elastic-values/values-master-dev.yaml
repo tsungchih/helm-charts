@@ -1,0 +1,105 @@
+---
+clusterName: "elasticsearch"
+nodeGroup: "master"
+
+# Elasticsearch roles that will be applied to this nodeGroup
+# These will be set as environment variables. E.g. node.master=true
+roles:
+  master: "true"
+  ingest: "false"
+  data: "false"
+  remote_cluster_client: "true"
+# ml: "true" # ml is not availble with elasticsearch-oss
+
+replicas: 3
+minimumMasterNodes: 2
+
+image: "docker.elastic.co/elasticsearch/elasticsearch"
+#image: "asia.gcr.io/bigdata-dev-287803/elasticsearch-oss"
+imageTag: "7.9.1"
+imagePullPolicy: "IfNotPresent"
+
+podAnnotations: {}
+  # iam.amazonaws.com/role: es-cluster
+
+# additionals labels
+labels:
+  app.kubernetes.io/name: "elasticsearch"
+  app.kubernetes.io/component: "master"
+  app.kubernetes.io/version: "7.9.1"
+  app.kubernetes.io/managed-by: "helm"
+
+esJavaOpts: "-Xmx500m -Xms500m"
+
+resources:
+  requests:
+    cpu: "1000m"
+    memory: "1Gi"
+  limits:
+    cpu: "1000m"
+    memory: "1Gi"
+
+networkHost: "0.0.0.0"
+
+volumeClaimTemplate:
+  accessModes: [ "ReadWriteOnce" ]
+  resources:
+    requests:
+      storage: 10Gi
+
+persistence:
+  enabled: true
+  labels:
+    # Add default labels for the volumeClaimTemplate fo the StatefulSet
+    enabled: false
+  annotations: {}
+
+# This is the node affinity settings as defined in
+# https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#node-affinity-beta-feature
+nodeAffinity:
+  requiredDuringSchedulingIgnoredDuringExecution:
+    nodeSelectorTerms:
+    - matchExpressions:
+      - key: cloud.google.com/gke-nodepool
+        operator: In
+        values:
+        - ordinary-pool
+
+service:
+  labels:
+    app.kubernetes.io/name: "elasticsearch"
+    app.kubernetes.io/component: "master"
+    app.kubernetes.io/version: "7.9.1"
+    app.kubernetes.io/managed-by: "helm"
+  labelsHeadless:
+    app.kubernetes.io/name: "elasticsearch"
+    app.kubernetes.io/component: "master"
+    app.kubernetes.io/version: "7.9.1"
+    app.kubernetes.io/managed-by: "helm"
+  type: ClusterIP
+  nodePort: ""
+  annotations: {}
+  httpPortName: http
+  transportPortName: transport
+  loadBalancerIP: ""
+  loadBalancerSourceRanges: []
+  externalTrafficPolicy: ""
+
+imagePullSecrets: []
+nodeSelector: {}
+tolerations: []
+
+# Enabling this will publically expose your Elasticsearch instance.
+# Only enable this if you have security enabled on your cluster
+ingress:
+  enabled: true
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  path: /
+  hosts:
+    - es.bigdata-dev.ml
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local

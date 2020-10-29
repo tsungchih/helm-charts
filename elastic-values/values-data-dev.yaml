@@ -1,0 +1,79 @@
+---
+clusterName: "elasticsearch"
+nodeGroup: "data"
+
+# The service that non master groups will try to connect to when joining the cluster
+# This should be set to clusterName + "-" + nodeGroup for your master group
+masterService: ""
+
+# Elasticsearch roles that will be applied to this nodeGroup
+# These will be set as environment variables. E.g. node.master=true
+roles:
+  master: "false"
+  ingest: "true"
+  data: "true"
+  remote_cluster_client: "false"
+# ml: "true" # ml is not availble with elasticsearch-oss
+
+replicas: 3
+minimumMasterNodes: 2
+
+
+image: "docker.elastic.co/elasticsearch/elasticsearch"
+imageTag: "7.9.1"
+imagePullPolicy: "IfNotPresent"
+
+labels:
+  app.kubernetes.io/name: "elasticsearch"
+  app.kubernetes.io/component: "data"
+  app.kubernetes.io/version: "7.9.1"
+  app.kubernetes.io/managed-by: "helm"
+
+esJavaOpts: "-Xmx2g -Xms2g"
+
+resources:
+  requests:
+    cpu: "1000m"
+    memory: "3Gi"
+  limits:
+    cpu: "1000m"
+    memory: "4Gi"
+
+networkHost: "0.0.0.0"
+
+volumeClaimTemplate:
+  accessModes: [ "ReadWriteOnce" ]
+  resources:
+    requests:
+      storage: 500Gi
+
+persistence:
+  enabled: true
+  labels:
+    # Add default labels for the volumeClaimTemplate fo the StatefulSet
+    enabled: false
+  annotations: {}
+
+# This is the node affinity settings as defined in
+# https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#node-affinity-beta-feature
+nodeAffinity: {}
+
+service:
+  labels:
+    app.kubernetes.io/name: "elasticsearch"
+    app.kubernetes.io/component: "data"
+    app.kubernetes.io/version: "7.9.1"
+    app.kubernetes.io/managed-by: "helm"
+  labelsHeadless:
+    app.kubernetes.io/name: "elasticsearch"
+    app.kubernetes.io/component: "data"
+    app.kubernetes.io/version: "7.9.1"
+    app.kubernetes.io/managed-by: "helm"
+  type: ClusterIP
+  nodePort: ""
+  annotations: {}
+  httpPortName: http
+  transportPortName: transport
+  loadBalancerIP: ""
+  loadBalancerSourceRanges: []
+  externalTrafficPolicy: ""
